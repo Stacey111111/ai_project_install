@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  ros2_workstation:
+    build: 
+      context: ./
+    image: ros2_gesture_control:latest
+    container_name: ros2_workstation
+    
+    # ========== 网络配置 ==========
+    # 必须使用host模式以便ROS2通信
+    network_mode: host
+    
+    # ========== 特权和IPC ==========
+    privileged: true
+    ipc: host
+    
+    # ========== GPU配置（如果有NVIDIA GPU）==========
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    
+    # ========== 环境变量 ==========
+    environment:
+      # X11显示
+      - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1
+      
+      # NVIDIA GPU（如果有）
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      
+      # ROS2配置
+      - ROS_DOMAIN_ID=30
+      - TURTLEBOT3_MODEL=waffle_pi
+      
+      # ROS2工作空间（可选）
+      - ROS_WORKSPACE=/root/ros2_ws
+    
+    # ========== 设备映射 ==========
+    devices:
+      - /dev/video0:/dev/video0    # 摄像头（必需）
+      # 如果有多个摄像头，添加：
+      # - /dev/video1:/dev/video1
+    
+    # ========== 卷映射 ==========
+    volumes:
+      # X11显示支持（必需）
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      
+      # 您的代码目录
+      # 修改左边的路径为您实际的代码位置
+      - ./my_code:/root/my_code
+      
+      # ROS2工作空间（如果有）
+      - ./ros2_ws:/root/ros2_ws
+      
+      # 下载目录（用于复制文件）
+      - ~/Downloads:/root/Downloads
+    
+    # ========== 终端配置 ==========
+    stdin_open: true
+    tty: true
+    
+    # ========== 启动命令（可选）==========
+    # 默认进入bash，也可以改为自动启动节点
+    # command: bash
+    # 或者：
+    # command: >
+    #   bash -c "source /opt/ros/foxy/setup.bash &&
+    #            source ~/ros2_ws/install/setup.bash &&
+    #            bash"
