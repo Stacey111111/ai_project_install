@@ -1,0 +1,48 @@
+完整的系统启动流程
+在TurtleBot3上（树莓派）正确的启动顺序：
+bash# ========================================
+# 终端1：TurtleBot3驱动（最重要！）
+# ========================================
+
+# 1. 设置模型
+export TURTLEBOT3_MODEL=waffle_pi
+
+# 2. 设置ROS_DOMAIN_ID
+export ROS_DOMAIN_ID=30
+
+# 3. 启动TurtleBot3驱动
+ros2 launch turtlebot3_manipulation_bringup hardware.launch.py
+
+
+# ⏳ 等待看到 "Ready" 消息！
+# 这是关键，没有这个，机器人不会动
+
+
+# ========================================
+# 终端2：机器人控制器（等终端1显示Ready后再运行）
+# ========================================
+
+# 1. 设置环境
+source ~/ros2_ws/install/setup.bash
+
+# 2. 启动控制器
+ros2 launch robotics_project4 robot.launch.py enable_camera:=False
+
+
+
+使用新系统的步骤：
+在TurtleBot3上（Raspberry Pi）：
+bash# 终端1：TurtleBot3驱动（不需要摄像头）
+export TURTLEBOT3_MODEL=waffle_pi
+ros2 launch turtlebot3_bringup robot.launch.py
+
+# 终端2：新的机器人控制器（混合导航）
+source ~/ros2_ws/install/setup.bash
+ros2 run robotics_project_ai robot_controller_hybrid_node
+在工作站PC上：
+bash# 手势识别（使用工作站的摄像头）
+source ~/ros2_ws/install/setup.bash
+ros2 run robotics_project_ai hand_gesture_ai_node
+
+
+xhost +local:root
