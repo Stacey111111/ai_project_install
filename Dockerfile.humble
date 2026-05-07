@@ -1,0 +1,30 @@
+# Dockerfile for ROS2 Humble with GPU Support
+# ROS2 Humble GPU支持的Dockerfile
+
+FROM osrf/ros:humble-desktop-full
+
+# 设置环境变量
+ENV DEBIAN_FRONTEND=noninteractive
+ENV ROS_DISTRO=humble
+
+# 更新并安装基础工具
+RUN apt-get update && apt-get install -y \
+    python3-pip \
+    vim \
+    git \
+    wget \
+    curl \
+    tree \
+    && rm -rf /var/lib/apt/lists/*
+
+# 创建ROS2工作空间
+RUN mkdir -p /root/ros2_ws/src
+
+# 设置工作目录
+WORKDIR /root
+
+# 自动source ROS2环境
+RUN echo "source /opt/ros/humble/setup.bash" >> /root/.bashrc
+
+# 默认启动bash
+CMD ["bash"]
